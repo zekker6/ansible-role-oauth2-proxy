@@ -1,0 +1,56 @@
+---
+- name: Create oauth2-proxy group
+  ansible.builtin.group:
+    name: "{{ oauth2_proxy_group }}"
+    system: true
+
+- name: Create oauth2-proxy user
+  ansible.builtin.user:
+    name: "{{ oauth2_proxy_user }}"
+    group: "{{ oauth2_proxy_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ oauth2_proxy_install_dir }}"
+    create_home: false
+
+- name: Create oauth2-proxy directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+  loop:
+    - path: "{{ oauth2_proxy_install_dir }}"
+    - path: "{{ oauth2_proxy_config_dir }}"
+      owner: "{{ oauth2_proxy_user }}"
+      group: "{{ oauth2_proxy_group }}"
+      mode: "0750"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Download oauth2-proxy archive
+  ansible.builtin.get_url:
+    url: "{{ oauth2_proxy_download_url }}"
+    dest: "{{ oauth2_proxy_install_dir }}/{{ oauth2_proxy_archive_name }}.tar.gz"
+    checksum: "sha256:{{ oauth2_proxy_checksum_url }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Extract oauth2-proxy archive
+  ansible.builtin.unarchive:
+    src: "{{ oauth2_proxy_install_dir }}/{{ oauth2_proxy_archive_name }}.tar.gz"
+    dest: "{{ oauth2_proxy_install_dir }}"
+    remote_src: true
+    creates: "{{ oauth2_proxy_install_dir }}/{{ oauth2_proxy_archive_name }}/oauth2-proxy"
+    owner: root
+    group: root
+
+- name: Link current oauth2-proxy binary
+  ansible.builtin.file:
+    src: "{{ oauth2_proxy_install_dir }}/{{ oauth2_proxy_archive_name }}/oauth2-proxy"
+    dest: "{{ oauth2_proxy_binary_path }}"
+    state: link
+    force: true
+  notify: Restart oauth2-proxy

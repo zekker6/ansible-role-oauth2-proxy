@@ -1,0 +1,59 @@
+---
+# Version of oauth2-proxy to install (without the leading "v").
+oauth2_proxy_version: "7.15.2"
+
+# Map the gathered host architecture to the release archive architecture.
+oauth2_proxy_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+  armv7l: armv7
+oauth2_proxy_arch: "{{ oauth2_proxy_arch_map[ansible_architecture] | default('amd64') }}"
+
+# Release download locations. The checksum file is verified against the archive.
+oauth2_proxy_download_base_url: "https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_version }}"
+oauth2_proxy_archive_name: "oauth2-proxy-v{{ oauth2_proxy_version }}.linux-{{ oauth2_proxy_arch }}"
+oauth2_proxy_download_url: "{{ oauth2_proxy_download_base_url }}/{{ oauth2_proxy_archive_name }}.tar.gz"
+# oauth2-proxy publishes a per-archive checksum file (<archive>.tar.gz-sha256sum.txt),
+# not a single combined sha256sum.txt.
+oauth2_proxy_checksum_url: "{{ oauth2_proxy_download_url }}-sha256sum.txt"
+
+# Service account that runs oauth2-proxy.
+oauth2_proxy_user: "oauth2-proxy"
+oauth2_proxy_group: "oauth2-proxy"
+
+# Filesystem layout.
+oauth2_proxy_install_dir: "/opt/oauth2-proxy"
+oauth2_proxy_binary_path: "/usr/local/bin/oauth2-proxy"
+oauth2_proxy_config_dir: "/etc/oauth2-proxy"
+oauth2_proxy_config_file: "{{ oauth2_proxy_config_dir }}/oauth2-proxy.cfg"
+
+# --- Core configuration (rendered into the oauth2-proxy config file) ---
+oauth2_proxy_http_address: "127.0.0.1:4180"
+oauth2_proxy_https_address: ""
+oauth2_proxy_upstreams: []
+oauth2_proxy_provider: ""
+oauth2_proxy_client_id: ""
+oauth2_proxy_client_secret: ""
+oauth2_proxy_cookie_secret: ""
+oauth2_proxy_email_domains:
+  - "*"
+oauth2_proxy_cookie_secure: true
+oauth2_proxy_reverse_proxy: false
+oauth2_proxy_redirect_url: ""
+
+# Passthrough for any oauth2-proxy option not exposed as a typed variable above.
+# Keys are config-file option names; values may be strings, booleans, integers or lists.
+oauth2_proxy_extra_options: {}
+
+# --- htpasswd (static basic-auth users) ---
+# When non-empty, the htpasswd file is generated and wired into the proxy config.
+# Passwords MUST be pre-hashed (bcrypt `$2b$...` or SHA `{SHA}...`); the role
+# never handles plaintext. Generate an entry with:
+#   htpasswd -nbB <user> <password>
+# Each item is a mapping: {username: <name>, hashed_password: <hash>}.
+oauth2_proxy_htpasswd_users: []
+oauth2_proxy_htpasswd_file: "{{ oauth2_proxy_config_dir }}/htpasswd"
+oauth2_proxy_display_htpasswd_form: true
+
+# Validate required configuration (e.g. provider) before configuring the service.
+oauth2_proxy_validate_config: true

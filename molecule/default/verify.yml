@@ -1,0 +1,51 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Stat oauth2-proxy binary
+      ansible.builtin.stat:
+        path: /usr/local/bin/oauth2-proxy
+      register: oauth2_proxy_binary
+
+    - name: Assert binary symlink is present
+      ansible.builtin.assert:
+        that:
+          - oauth2_proxy_binary.stat.exists
+          - oauth2_proxy_binary.stat.islnk
+
+    - name: Get installed oauth2-proxy version
+      ansible.builtin.command: /usr/local/bin/oauth2-proxy --version
+      register: oauth2_proxy_version_out
+      changed_when: false
+
+    - name: Assert installed version matches
+      ansible.builtin.assert:
+        that:
+          - "'7.15.2' in oauth2_proxy_version_out.stdout"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Assert oauth2-proxy service is running
+      ansible.builtin.assert:
+        that:
+          - "'oauth2-proxy.service' in ansible_facts.services"
+          - ansible_facts.services['oauth2-proxy.service'].state == 'running'
+
+    - name: Wait for oauth2-proxy listen port
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 4180
+        timeout: 30
+
+    - name: Read htpasswd file
+      ansible.builtin.slurp:
+        src: /etc/oauth2-proxy/htpasswd
+      register: oauth2_proxy_htpasswd_content
+
+    - name: Assert htpasswd contains both users
+      ansible.builtin.assert:
+        that:
+          - "'alice:' in (oauth2_proxy_htpasswd_content.content | b64decode)"
+          - "'bob:' in (oauth2_proxy_htpasswd_content.content | b64decode)"

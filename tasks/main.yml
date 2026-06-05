@@ -1,0 +1,22 @@
+---
+- name: Validate required configuration
+  ansible.builtin.assert:
+    that:
+      - oauth2_proxy_provider | length > 0
+    fail_msg: >-
+      oauth2_proxy_provider must be set. See
+      https://oauth2-proxy.github.io/oauth2-proxy/configuration/providers/
+  when: oauth2_proxy_validate_config | bool
+
+- name: Install oauth2-proxy
+  ansible.builtin.include_tasks: install.yml
+
+- name: Generate htpasswd file
+  ansible.builtin.include_tasks: htpasswd.yml
+  when: oauth2_proxy_htpasswd_users | length > 0
+
+- name: Configure oauth2-proxy
+  ansible.builtin.include_tasks: config.yml
+
+- name: Manage oauth2-proxy service
+  ansible.builtin.include_tasks: service.yml

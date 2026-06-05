@@ -1,0 +1,47 @@
+version: "3"
+
+vars:
+  # Tools live in the mise-managed project virtualenv. Call them explicitly so
+  # global mise shims / ~/.local/bin tools can never shadow them.
+  VENV_BIN: .venv/bin
+
+tasks:
+  deps:
+    desc: Install Python dependencies and Ansible collections into the project venv
+    cmds:
+      - uv pip install --python {{.VENV_BIN}}/python -r requirements.txt
+    status:
+      - test -x {{.VENV_BIN}}/yamllint
+      - test -x {{.VENV_BIN}}/ansible-lint
+      - test -x {{.VENV_BIN}}/molecule
+
+  lint:
+    desc: Run yamllint and ansible-lint
+    deps: [deps]
+    cmds:
+      - "{{.VENV_BIN}}/yamllint ."
+      - "{{.VENV_BIN}}/ansible-lint ."
+
+  test:
+    desc: Run the full molecule test sequence (set MOLECULE_DISTRO to pick a distro)
+    deps: [deps]
+    cmds:
+      - "{{.VENV_BIN}}/molecule test"
+
+  molecule:converge:
+    desc: Create and converge the molecule instance
+    deps: [deps]
+    cmds:
+      - "{{.VENV_BIN}}/molecule converge"
+
+  molecule:verify:
+    desc: Run molecule verification against the converged instance
+    deps: [deps]
+    cmds:
+      - "{{.VENV_BIN}}/molecule verify"
+
+  molecule:destroy:
+    desc: Destroy the molecule instance
+    deps: [deps]
+    cmds:
+      - "{{.VENV_BIN}}/molecule destroy"

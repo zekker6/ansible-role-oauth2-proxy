@@ -1,0 +1,22 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description=oauth2-proxy
+Documentation=https://oauth2-proxy.github.io/oauth2-proxy/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User={{ oauth2_proxy_user }}
+Group={{ oauth2_proxy_group }}
+ExecStart={{ oauth2_proxy_binary_path }} --config={{ oauth2_proxy_config_file }}
+Restart=always
+RestartSec=2
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths={{ oauth2_proxy_config_dir }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,33 @@
+---
+# Publishes the role to Ansible Galaxy on a version tag. Requires the
+# GALAXY_API_KEY repository secret to be configured before it will succeed.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  galaxy:
+    name: Import to Ansible Galaxy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up mise
+        uses: jdx/mise-action@v2
+
+      - name: Install ansible-core
+        run: uv pip install ansible-core
+
+      - name: Import role to Ansible Galaxy
+        run: >-
+          ansible-galaxy role import
+          --token "${{ secrets.GALAXY_API_KEY }}"
+          --role-name oauth2_proxy
+          zekker6 ansible-role-oauth2-proxy

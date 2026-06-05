@@ -1,0 +1,9 @@
+---
+- name: Render oauth2-proxy configuration
+  ansible.builtin.template:
+    src: oauth2-proxy.cfg.j2
+    dest: "{{ oauth2_proxy_config_file }}"
+    owner: "{{ oauth2_proxy_user }}"
+    group: "{{ oauth2_proxy_group }}"
+    mode: "0640"
+  notify: Restart oauth2-proxy

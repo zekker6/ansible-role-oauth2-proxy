@@ -1,0 +1,26 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    oauth2_proxy_provider: "google"
+    oauth2_proxy_client_id: "dummy-client-id"
+    oauth2_proxy_client_secret: "dummy-client-secret"
+    # cookie_secret must be 16, 24 or 32 bytes; this is 32.
+    oauth2_proxy_cookie_secret: "0123456789abcdef0123456789abcdef"
+    oauth2_proxy_http_address: "0.0.0.0:4180"
+    oauth2_proxy_upstreams:
+      - "static://200"
+    oauth2_proxy_email_domains:
+      - "*"
+    oauth2_proxy_redirect_url: "http://localhost:4180/oauth2/callback"
+    # Pre-hashed (bcrypt) passwords for "alice-secret" / "bob-secret".
+    oauth2_proxy_htpasswd_users:
+      - username: alice
+        hashed_password: "$2b$10$xVXZ94mvt1gtQNmi2H8XzeZiRqgwPESP5QAxtQDoL99b2x9.FgK26"
+      - username: bob
+        hashed_password: "$2b$10$91uFHUgkNhHBq774QfzGe.LVmfwMlMZi3x83vR8WFvGD9AqB45Ggm"
+  tasks:
+    - name: Include oauth2-proxy role
+      ansible.builtin.include_role:
+        name: ansible-role-oauth2-proxy

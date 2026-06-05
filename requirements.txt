@@ -1,0 +1,6 @@
+ansible-core>=2.15
+ansible-lint
+yamllint
+molecule>=6
+molecule-plugins[docker]
+docker

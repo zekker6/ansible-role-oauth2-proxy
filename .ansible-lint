@@ -1,0 +1,10 @@
+---
+exclude_paths:
+  - .cache/
+  - .ansible/
+  - .venv/
+
+skip_list:
+  # Variables are prefixed with the Galaxy role name (oauth2_proxy_); the repo
+  # directory name differs, which would otherwise trip the role-prefix check.
+  - var-naming[no-role-prefix]

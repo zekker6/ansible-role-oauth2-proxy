@@ -1,0 +1,48 @@
+{#- Render an oauth2-proxy config option with a correctly typed value. -#}
+{%- macro render(key, value) -%}
+{%- if value is boolean -%}
+{{ key }} = {{ value | lower }}
+{%- elif value is sequence and value is not string -%}
+{{ key }} = [{% for item in value %}"{{ item }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+{%- elif value is number -%}
+{{ key }} = {{ value }}
+{%- else -%}
+{{ key }} = "{{ value }}"
+{%- endif -%}
+{%- endmacro -%}
+{{ ansible_managed | comment }}
+
+{{ render('http_address', oauth2_proxy_http_address) }}
+{% if oauth2_proxy_https_address | length > 0 %}
+{{ render('https_address', oauth2_proxy_https_address) }}
+{% endif %}
+{% if oauth2_proxy_upstreams | length > 0 %}
+{{ render('upstreams', oauth2_proxy_upstreams) }}
+{% endif %}
+{% if oauth2_proxy_provider | length > 0 %}
+{{ render('provider', oauth2_proxy_provider) }}
+{% endif %}
+{% if oauth2_proxy_client_id | length > 0 %}
+{{ render('client_id', oauth2_proxy_client_id) }}
+{% endif %}
+{% if oauth2_proxy_client_secret | length > 0 %}
+{{ render('client_secret', oauth2_proxy_client_secret) }}
+{% endif %}
+{% if oauth2_proxy_cookie_secret | length > 0 %}
+{{ render('cookie_secret', oauth2_proxy_cookie_secret) }}
+{% endif %}
+{% if oauth2_proxy_email_domains | length > 0 %}
+{{ render('email_domains', oauth2_proxy_email_domains) }}
+{% endif %}
+{{ render('cookie_secure', oauth2_proxy_cookie_secure) }}
+{{ render('reverse_proxy', oauth2_proxy_reverse_proxy) }}
+{% if oauth2_proxy_redirect_url | length > 0 %}
+{{ render('redirect_url', oauth2_proxy_redirect_url) }}
+{% endif %}
+{% if oauth2_proxy_htpasswd_users | length > 0 %}
+{{ render('htpasswd_file', oauth2_proxy_htpasswd_file) }}
+{{ render('display_htpasswd_form', oauth2_proxy_display_htpasswd_form) }}
+{% endif %}
+{% for key, value in oauth2_proxy_extra_options.items() %}
+{{ render(key, value) }}
+{% endfor %}

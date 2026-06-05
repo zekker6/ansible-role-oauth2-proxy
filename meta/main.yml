@@ -1,0 +1,29 @@
+---
+galaxy_info:
+  role_name: oauth2_proxy
+  namespace: zekker6
+  author: Zakhar Besarab
+  description: Install and manage oauth2-proxy with optional htpasswd-based authentication.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: EL
+      versions:
+        - "9"
+  galaxy_tags:
+    - oauth2
+    - proxy
+    - authentication
+    - oidc
+    - sso
+    - security
+
+dependencies: []
