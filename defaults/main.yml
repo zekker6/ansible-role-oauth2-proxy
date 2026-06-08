@@ -7,7 +7,7 @@ oauth2_proxy_arch_map:
   x86_64: amd64
   aarch64: arm64
   armv7l: armv7
-oauth2_proxy_arch: "{{ oauth2_proxy_arch_map[ansible_facts['architecture']] | default('amd64') }}"
+oauth2_proxy_arch: "{{ oauth2_proxy_arch_map[ansible_facts['architecture']] | default('') }}"
 
 # Release download locations. The checksum file is verified against the archive.
 oauth2_proxy_download_base_url: "https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_version }}"
@@ -35,8 +35,11 @@ oauth2_proxy_provider: ""
 oauth2_proxy_client_id: ""
 oauth2_proxy_client_secret: ""
 oauth2_proxy_cookie_secret: ""
-oauth2_proxy_email_domains:
-  - "*"
+# Allowed email domains. Empty by default to force an explicit access decision:
+# set specific domains, use ["*"] to allow any authenticated email, or provide
+# an authenticated_emails_file via oauth2_proxy_extra_options. Validated when
+# oauth2_proxy_validate_config is true.
+oauth2_proxy_email_domains: []
 oauth2_proxy_cookie_secure: true
 oauth2_proxy_reverse_proxy: false
 oauth2_proxy_redirect_url: ""

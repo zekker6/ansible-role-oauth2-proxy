@@ -1,12 +1,37 @@
 ---
 - name: Validate required configuration
-  ansible.builtin.assert:
-    that:
-      - oauth2_proxy_provider | length > 0
-    fail_msg: >-
-      oauth2_proxy_provider must be set. See
-      https://oauth2-proxy.github.io/oauth2-proxy/configuration/providers/
   when: oauth2_proxy_validate_config | bool
+  block:
+    - name: Assert oauth2_proxy_provider is set
+      ansible.builtin.assert:
+        that:
+          - oauth2_proxy_provider | length > 0
+        fail_msg: >-
+          oauth2_proxy_provider must be set. See
+          https://oauth2-proxy.github.io/oauth2-proxy/configuration/providers/
+
+    - name: Assert oauth2_proxy_cookie_secret is set
+      ansible.builtin.assert:
+        that:
+          - oauth2_proxy_cookie_secret | length > 0
+        # The exact byte-length rule (16/24/32, raw or base64) is enforced by
+        # oauth2-proxy itself with a clear startup error; we only catch the
+        # common case of an unset secret (the empty default) early.
+        fail_msg: >-
+          oauth2_proxy_cookie_secret must be set to a 16, 24 or 32 byte value
+          (raw or base64-encoded). Generate one with:
+          openssl rand -base64 32 | tr -- '+/' '-_'
+
+    - name: Assert access is explicitly scoped
+      ansible.builtin.assert:
+        that:
+          - >-
+            oauth2_proxy_email_domains | length > 0
+            or 'authenticated_emails_file' in oauth2_proxy_extra_options
+        fail_msg: >-
+          Access is unrestricted. Set oauth2_proxy_email_domains (use ["*"] to
+          allow any authenticated email), or provide an authenticated_emails_file
+          via oauth2_proxy_extra_options.
 
 - name: Install oauth2-proxy
   ansible.builtin.include_tasks: install.yml

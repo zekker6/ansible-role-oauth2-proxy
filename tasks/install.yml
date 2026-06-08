@@ -1,4 +1,13 @@
 ---
+- name: Assert host architecture is supported
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] in oauth2_proxy_arch_map
+    fail_msg: >-
+      Unsupported architecture '{{ ansible_facts['architecture'] }}'.
+      Supported: {{ oauth2_proxy_arch_map.keys() | list | join(', ') }}.
+      Add a mapping by overriding oauth2_proxy_arch_map.
+
 - name: Create oauth2-proxy group
   ansible.builtin.group:
     name: "{{ oauth2_proxy_group }}"
@@ -54,3 +63,21 @@
     state: link
     force: true
   notify: Restart oauth2-proxy
+
+- name: Find installed oauth2-proxy artifacts
+  ansible.builtin.find:
+    paths: "{{ oauth2_proxy_install_dir }}"
+    file_type: any
+    patterns: "oauth2-proxy-v*"
+  register: oauth2_proxy_artifacts
+
+- name: Remove superseded oauth2-proxy versions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ oauth2_proxy_artifacts.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  when:
+    - item.path | basename != oauth2_proxy_archive_name
+    - item.path | basename != oauth2_proxy_archive_name ~ '.tar.gz'

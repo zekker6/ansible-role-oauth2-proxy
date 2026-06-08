@@ -41,8 +41,8 @@ All variables are defined in [`defaults/main.yml`](defaults/main.yml).
 | `oauth2_proxy_provider` | `""` | OAuth/OIDC provider (required unless `oauth2_proxy_validate_config: false`). |
 | `oauth2_proxy_client_id` | `""` | Provider client ID. |
 | `oauth2_proxy_client_secret` | `""` | Provider client secret. |
-| `oauth2_proxy_cookie_secret` | `""` | Cookie seed (16, 24 or 32 bytes). |
-| `oauth2_proxy_email_domains` | `["*"]` | Allowed email domains. |
+| `oauth2_proxy_cookie_secret` | `""` | Cookie seed (16, 24 or 32 bytes, raw or base64). Required (validated when `oauth2_proxy_validate_config` is true). Generate with `openssl rand -base64 32 \| tr -- '+/' '-_'`. |
+| `oauth2_proxy_email_domains` | `[]` | Allowed email domains. Empty forces an explicit access decision (validated when `oauth2_proxy_validate_config` is true): set specific domains, use `["*"]` to allow any authenticated email, or set `authenticated_emails_file` via `oauth2_proxy_extra_options`. |
 | `oauth2_proxy_cookie_secure` | `true` | Send cookies over HTTPS only. |
 | `oauth2_proxy_reverse_proxy` | `false` | Trust `X-Forwarded-*` headers. |
 | `oauth2_proxy_redirect_url` | `""` | OAuth callback URL (optional). |
