@@ -63,7 +63,7 @@ oauth2_proxy_extra_options:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `oauth2_proxy_htpasswd_users` | `[]` | List of `{username, hashed_password}` mappings; `hashed_password` is a pre-computed bcrypt/SHA hash. When non-empty the htpasswd file is generated and wired into the config. |
+| `oauth2_proxy_htpasswd_users` | `[]` | List of `{username, hashed_password}` mappings. `username` must not contain a colon or whitespace; `hashed_password` must be a pre-computed bcrypt (`$2a$`/`$2b$`/`$2y$`) or SHA (`{SHA}...`) hash (validated). When non-empty the htpasswd file is generated and wired into the config. |
 | `oauth2_proxy_htpasswd_file` | `{{ oauth2_proxy_config_dir }}/htpasswd` | Path to the generated htpasswd file. |
 | `oauth2_proxy_display_htpasswd_form` | `true` | Show the basic-auth login form. |
 
@@ -103,6 +103,8 @@ oauth2_proxy_extra_options:
         oauth2_proxy_client_id: "{{ vault_oauth2_client_id }}"
         oauth2_proxy_client_secret: "{{ vault_oauth2_client_secret }}"
         oauth2_proxy_cookie_secret: "{{ vault_oauth2_cookie_secret }}"
+        oauth2_proxy_email_domains:
+          - "example.com"
         oauth2_proxy_upstreams:
           - "http://127.0.0.1:8080/"
         # Pre-hashed via `htpasswd -nbB <user> <password>` (store the hash in vault)
