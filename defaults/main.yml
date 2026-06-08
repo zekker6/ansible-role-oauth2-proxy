@@ -7,7 +7,7 @@ oauth2_proxy_arch_map:
   x86_64: amd64
   aarch64: arm64
   armv7l: armv7
-oauth2_proxy_arch: "{{ oauth2_proxy_arch_map[ansible_architecture] | default('amd64') }}"
+oauth2_proxy_arch: "{{ oauth2_proxy_arch_map[ansible_facts['architecture']] | default('amd64') }}"
 
 # Release download locations. The checksum file is verified against the archive.
 oauth2_proxy_download_base_url: "https://github.com/oauth2-proxy/oauth2-proxy/releases/download/v{{ oauth2_proxy_version }}"
