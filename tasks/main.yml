@@ -33,6 +33,34 @@
           allow any authenticated email), or provide an authenticated_emails_file
           via oauth2_proxy_extra_options.
 
+    - name: Assert oauth2_proxy_extra_options does not redefine managed options
+      ansible.builtin.assert:
+        that:
+          - oauth2_proxy_extra_options.keys() | list | intersect(oauth2_proxy_managed_options) | length == 0
+        fail_msg: >-
+          oauth2_proxy_extra_options redefines options that are already managed by
+          dedicated variables:
+          {{ oauth2_proxy_extra_options.keys() | list | intersect(oauth2_proxy_managed_options) | join(', ') }}.
+          Set the corresponding oauth2_proxy_* variable instead; defining an option
+          twice produces a duplicate, ambiguous config entry.
+      vars:
+        # Option names the template renders from typed variables. Keep in sync
+        # with templates/oauth2-proxy.cfg.j2.
+        oauth2_proxy_managed_options:
+          - http_address
+          - https_address
+          - upstreams
+          - provider
+          - client_id
+          - client_secret
+          - cookie_secret
+          - email_domains
+          - cookie_secure
+          - reverse_proxy
+          - redirect_url
+          - htpasswd_file
+          - display_htpasswd_form
+
 - name: Install oauth2-proxy
   ansible.builtin.include_tasks: install.yml
 
