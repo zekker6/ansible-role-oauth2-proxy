@@ -12,6 +12,12 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
     privileged: true
+    # Cap nofile to RHEL-typical limits. CI Docker daemons hand containers a
+    # huge default RLIMIT_NOFILE (~2^30); EL9's sudo/PAM account stage chokes on
+    # it and become fails with "Authentication service cannot retrieve
+    # authentication info". Newer-systemd distros tolerate it, so only EL9 broke.
+    ulimits:
+      - "nofile:1024:524288"
     pre_build_image: true
 provisioner:
   name: ansible
