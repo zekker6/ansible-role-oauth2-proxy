@@ -31,8 +31,9 @@
     mode: "{{ item.mode | default('0755') }}"
   loop:
     - path: "{{ oauth2_proxy_install_dir }}"
+    # Owned by root, group-readable by the service account: oauth2-proxy can
+    # traverse and read the config but cannot rewrite it if compromised.
     - path: "{{ oauth2_proxy_config_dir }}"
-      owner: "{{ oauth2_proxy_user }}"
       group: "{{ oauth2_proxy_group }}"
       mode: "0750"
   loop_control:
