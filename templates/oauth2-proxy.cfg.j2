@@ -1,13 +1,15 @@
-{#- Render an oauth2-proxy config option with a correctly typed value. -#}
+{#- Render an oauth2-proxy config option with a correctly typed, escaped value.
+    Strings and list items are emitted via to_json so embedded quotes, backslashes
+    and newlines are escaped (JSON string escaping is valid TOML basic-string
+    escaping); booleans and numbers are rendered bare. Booleans are checked first
+    because in Jinja a bool also satisfies the `number` test. -#}
 {%- macro render(key, value) -%}
 {%- if value is boolean -%}
 {{ key }} = {{ value | lower }}
-{%- elif value is sequence and value is not string -%}
-{{ key }} = [{% for item in value %}"{{ item }}"{% if not loop.last %}, {% endif %}{% endfor %}]
 {%- elif value is number -%}
 {{ key }} = {{ value }}
 {%- else -%}
-{{ key }} = "{{ value }}"
+{{ key }} = {{ value | to_json }}
 {%- endif -%}
 {%- endmacro -%}
 {{ ansible_managed | comment }}
