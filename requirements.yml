@@ -1,0 +1,6 @@
+---
+# Test-only collections. The role itself uses only ansible.builtin; these are
+# required by Molecule's docker driver (create/destroy playbooks) for CI/local tests.
+collections:
+  - name: community.docker
+  - name: ansible.posix

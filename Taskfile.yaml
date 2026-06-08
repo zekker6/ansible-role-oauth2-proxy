@@ -7,13 +7,15 @@ vars:
 
 tasks:
   deps:
-    desc: Install Python dependencies and Ansible collections into the project venv
+    desc: Install Python dependencies and test collections into the project venv
     cmds:
       - uv pip install --python {{.VENV_BIN}}/python -r requirements.txt
+      - "{{.VENV_BIN}}/ansible-galaxy collection install -r requirements.yml"
     status:
       - test -x {{.VENV_BIN}}/yamllint
       - test -x {{.VENV_BIN}}/ansible-lint
       - test -x {{.VENV_BIN}}/molecule
+      - "{{.VENV_BIN}}/ansible-galaxy collection list 2>/dev/null | grep -qi '^community.docker '"
 
   lint:
     desc: Run yamllint and ansible-lint
