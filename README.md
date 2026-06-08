@@ -2,8 +2,15 @@
 
 [![Lint](https://github.com/zekker6/ansible-role-oauth2-proxy/actions/workflows/lint.yml/badge.svg)](https://github.com/zekker6/ansible-role-oauth2-proxy/actions/workflows/lint.yml)
 [![Test](https://github.com/zekker6/ansible-role-oauth2-proxy/actions/workflows/test.yml/badge.svg)](https://github.com/zekker6/ansible-role-oauth2-proxy/actions/workflows/test.yml)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-zekker6.oauth2__proxy-660198?logo=ansible&logoColor=white)](https://galaxy.ansible.com/ui/standalone/roles/zekker6/oauth2_proxy/)
 
 Installs and manages [oauth2-proxy](https://oauth2-proxy.github.io/oauth2-proxy/) on Linux hosts. The role downloads the official release binary (with checksum verification), renders a configuration file, manages a systemd service, and optionally provisions static basic-auth users via an htpasswd file.
+
+Published on [Ansible Galaxy](https://galaxy.ansible.com/ui/standalone/roles/zekker6/oauth2_proxy/) as `zekker6.oauth2_proxy`. Install it with:
+
+```bash
+ansible-galaxy role install zekker6.oauth2_proxy
+```
 
 ## Requirements
 
