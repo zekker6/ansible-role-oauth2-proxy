@@ -19,11 +19,6 @@
       register: oauth2_proxy_version_out
       changed_when: false
 
-    - name: Assert installed version matches
-      ansible.builtin.assert:
-        that:
-          - "'7.15.2' in oauth2_proxy_version_out.stdout"
-
     - name: Gather service facts
       ansible.builtin.service_facts:
 

@@ -4,6 +4,9 @@ vars:
   # Tools live in the mise-managed project virtualenv. Call them explicitly so
   # global mise shims / ~/.local/bin tools can never shadow them.
   VENV_BIN: .venv/bin
+  # Distro matrix for the :all targets. Keep in sync with the matrix in
+  # .github/workflows/test.yml.
+  DISTROS: debian13 ubuntu2404 rockylinux9
 
 tasks:
   deps:
@@ -30,6 +33,22 @@ tasks:
     cmds:
       - "{{.VENV_BIN}}/molecule test"
 
+  test:distro:
+    desc: Run the molecule sequence for a single distro (set DISTRO=<name>)
+    requires:
+      vars: [DISTRO]
+    cmds:
+      - task: molecule:distro
+        vars: { DISTRO: "{{.DISTRO}}" }
+
+  test:all:
+    desc: Run the molecule sequence across every CI distro in parallel (native for fan-out)
+    deps:
+      - for: { var: DISTROS }
+        task: molecule:distro
+        vars:
+          DISTRO: "{{.ITEM}}"
+
   molecule:converge:
     desc: Create and converge the molecule instance
     deps: [deps]
@@ -42,8 +61,27 @@ tasks:
     cmds:
       - "{{.VENV_BIN}}/molecule verify"
 
-  molecule:destroy:
-    desc: Destroy the molecule instance
+  # Shared primitive: run one molecule subcommand for a single distro with
+  # isolated ephemeral state (inventory, state.yml), so concurrent runs of the
+  # shared "default" scenario do not clobber each other. CMD defaults to the
+  # full "test" sequence; test:all and molecule:destroy fan this out per distro.
+  molecule:distro:
     deps: [deps]
+    requires:
+      vars: [DISTRO]
+    vars:
+      CMD: '{{.CMD | default "test"}}'
+    env:
+      MOLECULE_DISTRO: "{{.DISTRO}}"
+      MOLECULE_EPHEMERAL_DIRECTORY: "{{.ROOT_DIR}}/.cache/molecule/{{.DISTRO}}"
     cmds:
-      - "{{.VENV_BIN}}/molecule destroy"
+      - "{{.VENV_BIN}}/molecule {{.CMD}}"
+
+  molecule:destroy:
+    desc: Destroy the molecule instance across every CI distro in parallel (native for fan-out)
+    deps:
+      - for: { var: DISTROS }
+        task: molecule:distro
+        vars:
+          DISTRO: "{{.ITEM}}"
+          CMD: destroy
