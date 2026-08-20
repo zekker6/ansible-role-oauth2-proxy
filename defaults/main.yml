@@ -1,6 +1,6 @@
 ---
 # Version of oauth2-proxy to install (without the leading "v").
-oauth2_proxy_version: "7.15.3"
+oauth2_proxy_version: "7.15.4"
 
 # Map the gathered host architecture to the release archive architecture.
 oauth2_proxy_arch_map:
